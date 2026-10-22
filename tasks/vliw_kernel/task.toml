@@ -1,0 +1,7 @@
+name = "vliw_kernel"
+files = ["perf_takehome.py"]
+judge = "{python} -P judge.py"
+direction = "min"
+timeout = 900
+# The take-home is not redistributed here: it is downloaded on first use.
+setup = "{python} fetch.py"

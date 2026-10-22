@@ -1,0 +1,5 @@
+name = "toy"
+files = ["value.py"]
+judge = "{python} -P judge.py"
+direction = "max"
+timeout = 60

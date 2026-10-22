@@ -1,0 +1,9 @@
+__pycache__/
+*.egg-info/
+.venv/
+.pytest_cache/
+runs/
+# Anthropic's take-home is fetched on first use, never committed (see tasks/vliw_kernel/fetch.py).
+tasks/vliw_kernel/candidate/
+tasks/vliw_kernel/candidate.partial/
+tasks/vliw_kernel/judge/frozen_problem.py

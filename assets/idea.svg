@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 310" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+  <rect x="0.5" y="0.5" width="859" height="309" rx="10" fill="#ffffff" stroke="#d8dce2"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#666"/>
+    </marker>
+  </defs>
+
+  <!-- one agent, one session -->
+  <text x="24" y="50" font-size="14" fill="#333" font-weight="600">1 agent</text>
+  <text x="24" y="67" font-size="12" fill="#777">one long session</text>
+  <polygon points="190,47 830,33 830,61 190,53" fill="#8A8F99" opacity="0.85"/>
+
+  <!-- four parallel agents -->
+  <text x="24" y="118" font-size="14" fill="#333" font-weight="600">4 parallel agents</text>
+  <text x="24" y="135" font-size="12" fill="#777">four long sessions</text>
+  <polygon points="190,95.5 830,89 830,103 190,98.5" fill="#E0A100" opacity="0.85"/>
+  <polygon points="190,113.5 830,107 830,121 190,116.5" fill="#E0A100" opacity="0.85"/>
+  <polygon points="190,131.5 830,125 830,139 190,134.5" fill="#E0A100" opacity="0.85"/>
+  <polygon points="190,149.5 830,143 830,157 190,152.5" fill="#E0A100" opacity="0.85"/>
+
+  <!-- team that forgets -->
+  <text x="24" y="226" font-size="14" fill="#1F5FBF" font-weight="700">team of 4</text>
+  <text x="24" y="243" font-size="14" fill="#1F5FBF" font-weight="700">that forgets</text>
+  <text x="24" y="260" font-size="12" fill="#777">sharing candidates</text>
+  <g fill="#1F5FBF" opacity="0.85">
+    <polygon points="194,205.5 346,199 346,213 194,208.5"/><polygon points="354,205.5 506,199 506,213 354,208.5"/>
+    <polygon points="514,205.5 666,199 666,213 514,208.5"/><polygon points="674,205.5 826,199 826,213 674,208.5"/>
+    <polygon points="194,223.5 346,217 346,231 194,226.5"/><polygon points="354,223.5 506,217 506,231 354,226.5"/>
+    <polygon points="514,223.5 666,217 666,231 514,226.5"/><polygon points="674,223.5 826,217 826,231 674,226.5"/>
+    <polygon points="194,241.5 346,235 346,249 194,244.5"/><polygon points="354,241.5 506,235 506,249 354,244.5"/>
+    <polygon points="514,241.5 666,235 666,249 514,244.5"/><polygon points="674,241.5 826,235 826,249 674,244.5"/>
+    <polygon points="194,259.5 346,253 346,267 194,262.5"/><polygon points="354,259.5 506,253 506,267 354,262.5"/>
+    <polygon points="514,259.5 666,253 666,267 514,262.5"/><polygon points="674,259.5 826,253 826,267 674,262.5"/>
+  </g>
+  <g stroke="#1F5FBF" stroke-width="1.6" stroke-dasharray="3 4">
+    <line x1="350" y1="190" x2="350" y2="274"/><line x1="510" y1="190" x2="510" y2="274"/><line x1="670" y1="190" x2="670" y2="274"/>
+  </g>
+  <g font-size="12" fill="#1F5FBF" text-anchor="middle" font-weight="600">
+    <text x="350" y="184">forget</text><text x="510" y="184">forget</text><text x="670" y="184">forget</text>
+  </g>
+
+  <text x="190" y="296" font-size="12" fill="#777">same budget</text>
+  <text x="830" y="296" font-size="12" fill="#777" text-anchor="end">bar thickness = what each agent carries in context</text>
+  <line x1="280" y1="292" x2="420" y2="292" stroke="#666" stroke-width="1.2" marker-end="url(#arrow)"/>
+</svg>

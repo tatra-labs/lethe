@@ -1,0 +1,5 @@
+name = "tsp"
+files = ["solver.py"]
+judge = "{python} -P judge.py"
+direction = "max"
+timeout = 300

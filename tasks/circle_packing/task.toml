@@ -1,0 +1,5 @@
+name = "circle_packing"
+files = ["packing.py"]
+judge = "{python} -P judge.py"
+direction = "max"
+timeout = 300
