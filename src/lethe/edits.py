@@ -71,6 +71,8 @@ def apply(edits: list[Edit], workspace: Path, files: list[str]) -> tuple[int, li
         if path is None:
             errors.append("an edit block did not name which file it changes")
             continue
+        if e.search.strip() and not (workspace / path).exists() and len(files) == 1:
+            path = files[0]  # a block that edits existing text cannot mean a new file: the name is just wrong
         target = workspace / path
         source = target.read_text(encoding="utf-8") if target.exists() else ""
         if not e.search.strip():

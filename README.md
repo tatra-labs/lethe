@@ -68,27 +68,27 @@ pip install -e ".[plot,tasks]"
 **With Claude Code** as the agents (uses your existing `claude` login):
 
 ```bash
-lethe run tasks/tsp --agent claude -m haiku --budget 48
+lethe run tasks/bin_packing --agent claude -m haiku --budget 48
 ```
 
 **With any OpenAI-compatible API** (OpenAI, OpenRouter, DeepSeek, Together, vLLM, ...):
 
 ```bash
 export OPENAI_API_KEY=...
-lethe run tasks/tsp -m <model> --base-url https://openrouter.ai/api/v1 --budget 64
+lethe run tasks/bin_packing -m <model> --base-url https://openrouter.ai/api/v1 --budget 64
 ```
 
 **Fully local**, for example with [llama.cpp](https://github.com/ggml-org/llama.cpp) on an 8 GB GPU:
 
 ```bash
 llama-server -m Qwen3.5-9B-Q4_K_M.gguf -ngl 99 -c 65536 -np 4 --jinja
-lethe run tasks/tsp -m qwen3.5-9b --no-think --budget 64
+lethe run tasks/bin_packing -m qwen3.5-9b --no-think --budget 64
 ```
 
 Every run streams one line per proposal and writes a run directory:
 
 ```
-runs/tsp-forget-20261021-213000/
+runs/bin_packing-forget-20261022-093000/
   events.jsonl     one line per proposal: score, best so far, lines changed, tokens, cost
   best/            the best candidate so far, updated live
   round0/ ...      each round's repository and agent worktrees, kept for inspection
@@ -98,7 +98,7 @@ runs/tsp-forget-20261021-213000/
 **Compare strategies** on the same budget and plot them:
 
 ```bash
-lethe compare tasks/tsp --budget 96 -m <model>   # 1 agent, 4 parallel agents, team that forgets
+lethe compare tasks/bin_packing --budget 96 -m <model>   # 1 agent, 4 parallel agents, team that forgets
 lethe plot runs/my-run-a runs/my-run-b --edits -o chart.png
 ```
 
@@ -141,6 +141,7 @@ Any object with `turn(message, workspace)` and `forget()` can be an agent.
 
 | task | the agent edits | score | starts at | for reference |
 |---|---|---|---:|---|
+| [`bin_packing`](tasks/bin_packing) | `priority(item, bins)`, an online packing heuristic, judged exactly as in FunSearch | 100 × lower bound / bins used, 5 × 5,000 Weibull items | 95.94 | FunSearch's discovered heuristic: 99.32 |
 | [`tsp`](tasks/tsp) | `solve(points, time_limit)`, a tour finder | 100 × nearest-neighbor length / your length, mean of 8 instances | 100 | plain 2-opt: 117.4; optimal tours are a few % shorter still |
 | [`circle_packing`](tasks/circle_packing) | `pack()`, 26 circles in a unit square | sum of radii ↑ | 1.30 | best known ≈ 2.636 (an AlphaEvolve benchmark) |
 | [`vliw_kernel`](tasks/vliw_kernel) | [Anthropic's performance take-home](https://github.com/anthropics/original_performance_takehome) | clock cycles ↓ | 147,734 | Claude Opus 4.5: 1,487 after 11.5 hours; the paper's team: 1,077 |
@@ -183,13 +184,13 @@ verbatim, so make it useful.
 ```python
 from lethe import LLMAgent, Run, Strategy, Task
 
-task = Task.load("tasks/tsp")
+task = Task.load("tasks/bin_packing")
 best = Run(
     task,
     Strategy(agents=4, team=True, rounds=4),
     make_agent=lambda i: LLMAgent("<model>", "https://openrouter.ai/api/v1", api_key, files=task.files),
     budget=64,
-    out="runs/tsp",
+    out="runs/bin_packing",
 ).run()
 print(best.score, best.id)
 ```

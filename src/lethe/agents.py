@@ -33,6 +33,7 @@ class Turn:
     tokens_out: int = 0
     cost: float = 0.0
     error: str = ""  # anything that went wrong, shown to the agent on its next turn
+    reply: str = ""  # the agent's full reply, kept in the run directory for inspection
 
 
 class Agent(Protocol):
@@ -48,7 +49,7 @@ Each turn you see the judge's verdict on your current candidate and reply with e
 
 Change files with SEARCH/REPLACE blocks, each preceded by the file's path on its own line:
 
-solution.py
+{file}
 <<<<<<< SEARCH
 lines copied exactly from the current file
 =======
@@ -89,9 +90,10 @@ class LLMAgent:
     def turn(self, message: str, workspace: Path) -> Turn:
         context, files = render_context(workspace), render_files(workspace, self.files)
         user = f"{message}\n\n{context}\n\n{files}"
+        system = SYSTEM.format(file=self.files[0] if self.files else "solution.py")
         payload = {
             "model": self.model,
-            "messages": [{"role": "system", "content": SYSTEM}, *self._window(len(user)),
+            "messages": [{"role": "system", "content": system}, *self._window(len(user)),
                          {"role": "user", "content": user}],
             "temperature": self.temperature,
             "max_tokens": self.max_tokens,
@@ -106,6 +108,9 @@ class LLMAgent:
         applied, errors = edits.apply(blocks, workspace, self.files)
         if not blocks and self.files and edits.rewrite(text, workspace / self.files[0]):
             applied = 1
+        if reply["choices"][0].get("finish_reason") == "length":
+            errors.append(f"your reply was cut off at {self.max_tokens} tokens; prefer short SEARCH/REPLACE "
+                          "blocks over rewriting whole files")
         if not applied and not errors:
             errors = ["the reply contained no edit blocks"]
 
@@ -113,7 +118,7 @@ class LLMAgent:
         tin, tout = int(usage.get("prompt_tokens") or 0), int(usage.get("completion_tokens") or 0)
         return Turn(
             summary=_summary(text), tokens_in=tin, tokens_out=tout,
-            cost=(tin * self.price[0] + tout * self.price[1]) / 1e6, error="; ".join(errors),
+            cost=(tin * self.price[0] + tout * self.price[1]) / 1e6, error="; ".join(errors), reply=text,
         )
 
     def _window(self, reserve: int) -> list[dict]:
@@ -169,7 +174,7 @@ class ClaudeCode:
         return Turn(
             summary=_summary(data.get("result") or ""), tokens_in=tin,
             tokens_out=int(usage.get("output_tokens") or 0), cost=float(data.get("total_cost_usd") or 0.0),
-            error=str(data.get("result", ""))[:800] if data.get("is_error") else "",
+            error=str(data.get("result", ""))[:800] if data.get("is_error") else "", reply=data.get("result") or "",
         )
 
 

@@ -37,6 +37,13 @@ def test_nearly_identical_blocks_still_apply_but_different_ones_do_not(tmp_path:
     assert edits.apply([other], tmp_path, ["a.py"])[0] == 0
 
 
+def test_a_misnamed_file_means_the_only_editable_one(tmp_path: Path):
+    (tmp_path / "priority.py").write_text(SOURCE)
+    reply = "solution.py\n<<<<<<< SEARCH\n    return 2\n=======\n    return 3\n>>>>>>> REPLACE\n"
+    assert edits.apply(edits.parse(reply, ["priority.py"]), tmp_path, ["priority.py"]) == (1, [])
+    assert "return 3" in (tmp_path / "priority.py").read_text() and not (tmp_path / "solution.py").exists()
+
+
 def test_paths_cannot_escape_the_workspace():
     reply = "../../evil.py\n<<<<<<< SEARCH\n=======\nx\n>>>>>>> REPLACE\n"
     assert edits.parse(reply, ["a.py"])[0].path is None

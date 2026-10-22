@@ -7,7 +7,7 @@ import os
 import subprocess
 import sys
 
-N, TOL, LIMIT = 26, 1e-9, 120
+N, TOL, LIMIT = 26, 1e-9, 30
 
 
 def fail(message):

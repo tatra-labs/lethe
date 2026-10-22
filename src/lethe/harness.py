@@ -159,6 +159,11 @@ class Run:
 
     def _record(self, i: int, k: int, step: int, turn: Turn, seconds: float) -> None:
         ws, parent = self.workspaces[i], self.current[i]
+        if turn.reply or turn.error:
+            replies = self.out / "replies"
+            replies.mkdir(exist_ok=True)
+            (replies / f"round{k + 1}-agent{i}-step{step + 1}.md").write_text(
+                turn.reply + (f"\n\n<!-- harness: {turn.error} -->\n" if turn.error else ""), encoding="utf-8")
         sha = self.repo.commit(ws, f"agent {i}, round {k + 1}, step {step + 1}: {turn.summary}"[:200])
         event = {"agent": i, "round": k, "step": step, "parent": parent.id, "tokens_in": turn.tokens_in,
                  "tokens_out": turn.tokens_out, "cost": turn.cost, "seconds": round(seconds, 2)}
