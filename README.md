@@ -128,7 +128,7 @@ lethe follows the harness of the paper (Figure 3 there):
 `.context/` pasted into each message and replies with SEARCH/REPLACE edit blocks; its session is
 the chat history, trimmed from the oldest exchanges to `--max-context`. `--agent claude` runs the
 Claude Code CLI headless with file tools and read-only git, continues its session with `--resume`,
-and starts a new one when it forgets. In our tests that cost $0.13–0.23 per proposal with Haiku.
+and starts a new one when it forgets. In our tests that cost $0.05–0.09 per proposal with Haiku.
 Any object with `turn(message, workspace)` and `forget()` can be an agent.
 
 ## Tasks

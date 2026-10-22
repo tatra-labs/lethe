@@ -131,7 +131,11 @@ class LLMAgent:
 
 
 class ClaudeCode:
-    """Claude Code in headless mode; `--resume` continues the session, forgetting drops it."""
+    """Claude Code in headless mode; `--resume` continues the session, forgetting drops it.
+
+    Only file tools and read-only git are loaded, and no MCP servers, which keeps every call
+    small (about 13k tokens of fixed context) and runs the same on every machine.
+    """
 
     uses_tools = True
     TOOLS = "Read,Edit,Write,Glob,Grep,Bash(git show *),Bash(git diff *),Bash(git log *)"
@@ -147,8 +151,8 @@ class ClaudeCode:
 
     def turn(self, message: str, workspace: Path) -> Turn:
         cmd = [shutil.which(self.executable) or self.executable, "-p", "--output-format", "json",
-               "--permission-mode", "acceptEdits", "--allowedTools", self.tools, "--model", self.model,
-               *self.extra_args]
+               "--permission-mode", "acceptEdits", "--tools", "Read,Edit,Write,Glob,Grep,Bash",
+               "--allowedTools", self.tools, "--strict-mcp-config", "--model", self.model, *self.extra_args]
         if self.session:
             cmd += ["--resume", self.session]
         proc = subprocess.run(cmd, input=message, cwd=workspace, capture_output=True, text=True,
