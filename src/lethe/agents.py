@@ -10,6 +10,7 @@ Anything with `uses_tools`, `turn()` and `forget()` can be an agent.
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 import time
@@ -224,7 +225,8 @@ def render_files(workspace: Path, files: list[str]) -> str:
 
 
 def _summary(text: str) -> str:
-    """The last line of prose in a reply, as a one-line summary of the change."""
-    prose = [line.strip() for line in edits.BLOCK.sub("", edits.FENCE.sub("", text)).splitlines()]
-    prose = [line for line in prose if line and not line.startswith(("<<<<<<<", "=======", ">>>>>>>"))]
+    """The last line of prose in a reply (not a file path), as a one-line summary of the change."""
+    prose = [line.strip().strip("`*#: ") for line in edits.BLOCK.sub("", edits.FENCE.sub("", text)).splitlines()]
+    prose = [line for line in prose if line and not line.startswith(("<<<<<<<", "=======", ">>>>>>>"))
+             and not re.fullmatch(r"[\w./\\-]+\.\w+", line)]
     return prose[-1][:200] if prose else ""
