@@ -58,6 +58,14 @@ The paper traces the plateau to the agents themselves, not to the problem:
   per agent gained 1.4% for $24.67; forgetting gained 9.2% for $15.32, because fresh sessions are
   short.
 
+## What you need
+
+Forgetting unblocks agents that make progress and then stall; it cannot help an agent that never
+improves on the starting candidate. In our tests a 4-bit Qwen3.5-9B on a laptop GPU did not beat a
+single starting candidate in about 120 proposals across these tasks, with or without thinking, so
+every strategy stayed flat. Use a model at least as capable as the paper's DeepSeek V4.1 Flash,
+through any OpenAI-compatible API or through Claude Code.
+
 ## Quickstart
 
 ```bash
@@ -78,11 +86,13 @@ export OPENAI_API_KEY=...
 lethe run tasks/bin_packing -m <model> --base-url https://openrouter.ai/api/v1 --budget 64
 ```
 
-**Fully local**, for example with [llama.cpp](https://github.com/ggml-org/llama.cpp) on an 8 GB GPU:
+**Fully local**, with any server that speaks the same API ([llama.cpp](https://github.com/ggml-org/llama.cpp),
+vLLM, Ollama, LM Studio), as long as the model is strong enough (see above). Give the server one slot
+per agent:
 
 ```bash
-llama-server -m Qwen3.5-9B-Q4_K_M.gguf -ngl 99 -c 65536 -np 4 --jinja
-lethe run tasks/bin_packing -m qwen3.5-9b --no-think --budget 64
+llama-server -m <model>.gguf -ngl 99 -c 131072 -np 4 --jinja
+lethe run tasks/bin_packing -m local --budget 64
 ```
 
 Every run streams one line per proposal and writes a run directory:
@@ -101,6 +111,10 @@ runs/bin_packing-forget-20261022-093000/
 lethe compare tasks/bin_packing --budget 96 -m <model>   # 1 agent, 4 parallel agents, team that forgets
 lethe plot runs/my-run-a runs/my-run-b --edits -o chart.png
 ```
+
+`compare` writes `compare.png`: the best score against proposals spent, with every forget marked,
+next to the median size of each edit at each step of a session, the paper's sign of anchoring.
+Every agent reply is kept under `replies/` in the run directory.
 
 ## How it works
 
