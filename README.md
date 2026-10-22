@@ -1,5 +1,11 @@
 <h1 align="center">lethe</h1>
 
+<p align="center">
+  <a href="https://github.com/tatra-labs/lethe/actions/workflows/tests.yml"><img src="https://github.com/tatra-labs/lethe/actions/workflows/tests.yml/badge.svg" alt="tests"></a>
+  <a href="https://arxiv.org/abs/2610.20563"><img src="https://img.shields.io/badge/arXiv-2610.20563-b31b1b.svg" alt="arXiv"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
+</p>
+
 <p align="center"><b>Agent teams that forget.</b><br>
 Every so often, wipe every agent's memory, restart the whole team from the best candidate, and watch a plateaued search climb again.</p>
 

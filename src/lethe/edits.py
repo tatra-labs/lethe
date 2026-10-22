@@ -13,6 +13,7 @@ but one large code fence is taken as a rewrite of the main file.
 
 from __future__ import annotations
 
+import difflib
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -86,18 +87,29 @@ def apply(edits: list[Edit], workspace: Path, files: list[str]) -> tuple[int, li
     return applied, errors
 
 
-def _replace(source: str, search: str, replace: str) -> str | None:
+def _replace(source: str, search: str, replace: str, min_similarity: float = 0.9) -> str | None:
     if search in source:
         return source.replace(search, replace, 1)
-    # Retry ignoring trailing whitespace, which models often get wrong.
     src, pat = source.splitlines(keepends=True), search.splitlines()
+    tail = "" if replace.endswith("\n") or not replace else "\n"
+    # Retry ignoring trailing whitespace, which models often get wrong.
     want = [line.rstrip() for line in pat]
     n = len(pat)
     for i in range(len(src) - n + 1):
         if [line.rstrip() for line in src[i:i + n]] == want:
-            tail = "" if replace.endswith("\n") or not replace else "\n"
             return "".join(src[:i]) + replace + tail + "".join(src[i + n:])
-    return None
+    # Last resort: the most similar run of lines, if it is nearly identical (models drop blank
+    # lines or retype a comment when they copy a block).
+    best, where = min_similarity, None
+    for size in range(max(1, n - 2), n + 3):
+        for i in range(len(src) - size + 1):
+            matcher = difflib.SequenceMatcher(None, "".join(src[i:i + size]), search, autojunk=False)
+            if matcher.real_quick_ratio() >= best and matcher.quick_ratio() >= best and matcher.ratio() >= best:
+                best, where = matcher.ratio(), (i, size)
+    if where is None:
+        return None
+    i, size = where
+    return "".join(src[:i]) + replace + tail + "".join(src[i + size:])
 
 
 def rewrite(text: str, main: Path, min_fraction: float = 0.3) -> bool:

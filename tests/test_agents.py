@@ -28,6 +28,15 @@ def test_trailing_whitespace_is_forgiven_and_misses_are_reported(tmp_path: Path)
     assert "return 4" in (tmp_path / "a.py").read_text()
 
 
+def test_nearly_identical_blocks_still_apply_but_different_ones_do_not(tmp_path: Path):
+    (tmp_path / "a.py").write_text(SOURCE)
+    retyped = edits.Edit("a.py", "def f():\n    return 1\n\ndef g():\n    return 2\n", "def f():\n    return 7\n")
+    assert edits.apply([retyped], tmp_path, ["a.py"]) == (1, [])  # one blank line was dropped
+    assert (tmp_path / "a.py").read_text() == "def f():\n    return 7\n"
+    other = edits.Edit("a.py", "class Solver:\n    pass\n", "x = 1\n")
+    assert edits.apply([other], tmp_path, ["a.py"])[0] == 0
+
+
 def test_paths_cannot_escape_the_workspace():
     reply = "../../evil.py\n<<<<<<< SEARCH\n=======\nx\n>>>>>>> REPLACE\n"
     assert edits.parse(reply, ["a.py"])[0].path is None
@@ -48,7 +57,8 @@ def test_llm_agent_edits_and_keeps_a_lean_session(tmp_path: Path, monkeypatch):
     def fake_chat(base_url, api_key, payload, timeout):
         sent.append(payload)
         content = "a.py\n<<<<<<< SEARCH\n    return 2\n=======\n    return 5\n>>>>>>> REPLACE\nMade g return 5."
-        return {"choices": [{"message": {"content": content}}], "usage": {"prompt_tokens": 100, "completion_tokens": 20}}
+        usage = {"prompt_tokens": 100, "completion_tokens": 20}
+        return {"choices": [{"message": {"content": content}}], "usage": usage}
 
     monkeypatch.setattr(agents_module, "chat", fake_chat)
     agent = LLMAgent("m", files=["a.py"], price=(1.0, 2.0))
